@@ -16,6 +16,7 @@
 
 		<link rel="stylesheet" href="css/reveal.min.css">
 		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+    <link rel="stylesheet" href="lib/css/overrides.css" id="theme">
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -99,13 +100,307 @@
 				<section>
 					<h2>$.Deferred API</h2>
 
-          <h4 class='fragment'>State Storage Object</h4>
+          <h4 class='fragment'>A deferred is a state storage object</h4>
           <pre class='fragment'><code data-trim contenteditable>
 var dfd = $.Deferred();
 
 dfd.state(); // 'pending'
           </code></pre>
 				</section>
+
+        <section>
+          <h2>$.Deferred API</h2>
+
+          <h4 class='fragment'>Three states possible:</h4>
+          <ul>
+            <li class='fragment'>pending</li>
+            <li class='fragment'>resolved</li>
+            <li class='fragment'>rejected</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>$.Deferred API</h2>
+
+          <pre class='fragment'><code data-trim contenteditable>
+var dfd1 = $.Deferred(); // 'pending'
+dfd1.reject();           // 'rejected'
+
+dfd2 = $.Deferred();     // 'pending'
+dfd2.resolve();          // 'resolved'
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>$.Deferred API</h2>
+
+          <p class='fragment'>
+            ONE WAY. Once you leave 'pending', there is no going back, and no changing your mind
+          <p>
+          <p class='fragment'>
+            Rejected is always rejected, and resolved is always resolved
+          <p>
+        </section>
+
+        <section>
+          <h2>$.Deferred API</h2>
+
+          <p class='fragment'>
+            Changing the state of something isn't that useful by itself, you could just set it as a variable
+          <p>
+          <p class='fragment'>
+            The killer feature of deferreds is that you can <em>listen to state changes</em>
+          <p>
+        </section>
+
+        <section>
+          <h2>$.Deferred API</h2>
+
+                    <pre class='fragment'><code data-trim contenteditable>
+dfd.done(function() {
+  console.log('This deferred was -resolved-')
+});
+
+dfd.fail(function() {
+  console.log('This deferred was -rejected-')
+});
+
+dfd.always(function() {
+  console.log('This deferred was either rejected or resolved')
+});
+          </code></pre>
+          <p class='fragment'>
+            Calling .reject() or .resolve() will change the state, triggering a callback. This is similar to $.ajax and .success(), .error(), and .complete()
+          </p>
+        </section>
+
+        <section>
+          <h2>$.Deferred API</h2>
+          <p>Other useful methods:</p>
+          <pre class='fragment'><code>
+dfd.progress( fn )
+dfd.notify() //triggers callback, no state change
+
+dfd.then( resolveFn, rejectFn, notifyFn )
+$.when( dfds* )
+dfd.promise()
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>$.Deferred API</h2>
+          <p>Summary:</p>
+          <p class='fragment'>.reject()  --> .fail( fn ) --> .state() == 'rejected'</p>
+          <p class='fragment'>.resolve() --> .done( fn ) --> .state() == 'resolved'</p>
+          <p class='fragment'>.notify()  --> .progress( fn ) --> .state() == 'pending'</p>
+        </section>
+
+        <section data-transition="none">
+          <h2>Examples!</h2>
+          <p class='fragment'>A deferred might not immediately appear useful</p>
+          <p class='fragment'>I will show a common task, and an elegant way to solve it using a deferred.</p>
+        </section>
+
+        <section>
+          <h2>Example 1: Bundling Ajax Calls</h2>
+          <p class='fragment'>Task: Wait for several ajax calls to complete before doing something</p>
+          <p class='fragment'>Potential solution:</p>
+<pre class='fragment'><code>
+$.ajax({
+  success:
+})
+</code></pre>
+        </section>
+
+        <section data-transition="none">
+          <h2>Example 1: Bundling Ajax Calls</h2>
+          <p>Task: Wait for several ajax calls to complete before doing something</p>
+          <p>Potential solution:</p>
+<pre><code>
+$.ajax({
+  success: function() {
+    $.ajax({
+      success: function() {
+
+      }
+    })
+  }
+})
+</code></pre>
+        </section>
+
+        <section data-transition="none">
+          <h2>Example 1: Bundling Ajax Calls</h2>
+          <p>Task: Wait for several ajax calls to complete before doing something</p>
+          <p>Potential solution:</p>
+<pre><code>
+$.ajax({
+  success: function() {
+    $.ajax({
+      success: function() {
+        $.ajax({
+          //PLEASE don't do this
+        })
+      }
+    })
+  }
+})
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 1: Bundling Ajax Calls</h2>
+          <p>Another attempt, saving state externally:</p>
+<pre class='fragment'><code>
+var completedCalls = [];
+
+$.ajax({
+  success: function() {
+    completedCalls.push('facebookData');
+    checkAllCompleted();
+  }
+});
+
+$.ajax({
+  success: function() {
+    completedCalls.push('twitterData');
+    checkAllCompleted();
+  }
+});
+
+var checkAllCompleted = function() {
+  //Check completedCalls array for all 3 values
+}
+</code></pre>
+          <p class='fragment'>There's a better way!</p>
+        </section>
+
+        <section data-transition="none">
+          <h2>Example 1: Bundling Ajax Calls</h2>
+<pre class='fragment'><code>
+var getAddressData = function() {
+  return $.ajax({
+    //ajax code here
+  })
+};
+</code></pre>
+        </section>
+
+        <section data-transition="none">
+          <h2>Example 1: Bundling Ajax Calls</h2>
+<pre><code>
+var getAddressData =  function() {...};
+var getTwitterData =  function() {...};
+var getFacebookData = function() {...};
+
+//all 3 return promises (deferreds you can't reject/resolve yourself)
+</code></pre>
+        </section>
+
+        <section data-transition="none">
+          <h2>Example 1: Bundling Ajax Calls</h2>
+<pre><code>
+var getAddressData =  function() {...};
+var getTwitterData =  function() {...};
+var getFacebookData = function() {...};
+
+$.when(
+
+  getAddressData(),
+  getTwitterData(),
+  getFacebookData()
+
+).done(function(){
+  //do something with all that data
+})
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 1: Bundling Ajax Calls</h2>
+          <p>$.when accepts many promises or deferreds and represents them as one.</p>
+          <p class='fragment'>This means that if one is rejected, the whole 'bundle' is rejected immediately.</p>
+        </section>
+
+        <section>
+          <h2>Example 2: The Template Pattern</h2>
+          <p class='fragment'>Task: You are rendering different views on a single page application. Some need external data, others don't.</p>
+        </section>
+
+        <section>
+          <h2>Example 2: The Template Pattern</h2>
+<pre><code>
+var aboutPage = {
+  init: function() {
+    this.promise = this.getInfo() //ajax call
+  }
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 2: The Template Pattern</h2>
+<pre><code>
+var aboutPage = {...}
+
+var contactPage = {
+  init: function() {
+    // I don't need to fetch data here.
+    // I want to provide the
+    // same interface to my object.
+  }
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 2: The Template Pattern</h2>
+<pre><code>
+var aboutPage = {...}
+
+var contactPage = {
+  init: function() {
+    this.promise = $.Deferred().resolve();
+  }
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 2: The Template Pattern</h2>
+<pre><code>
+var aboutPage = {...}
+
+var contactPage = {...}
+
+var changePage = function(page) {
+  $.when(page.promise).done(function() {
+    page.render();
+  });
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 2: The Template Pattern</h2>
+<pre><code>
+var aboutPage = {...}
+
+var contactPage = {
+  init: function() {
+    // this.promise = $.Deferred().resolve();
+    // This does the same thing!
+    // $.when(undefined) resolves immediately
+  }
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 2: The Template Pattern</h2>
+          <p>$.when lets you treat any object that isn't a deferred like a deferred.</p>
+          <p class='fragment'>This lets you sometimes use deferreds, and other times not, but treat the objects in the same manner.</p>
+        </section>
 
 			</div>
 
