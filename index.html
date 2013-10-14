@@ -310,8 +310,8 @@ $.when(
   getTwitterData(),
   getFacebookData()
 
-).done(function(){
-  //do something with all that data
+).done(function() {
+  // do something with all that data
 })
 </code></pre>
         </section>
@@ -401,6 +401,162 @@ var contactPage = {
           <p>$.when lets you treat any object that isn't a deferred like a deferred.</p>
           <p class='fragment'>This lets you sometimes use deferreds, and other times not, but treat the objects in the same manner.</p>
         </section>
+
+        <section>
+          <h2>Example 3: Caching</h2>
+          <p class='fragment'>Task: You have to minimize the number of API calls you make in an application</p>
+        </section>
+
+        <section>
+          <h2>Example 3: Caching</h2>
+<pre><code>
+var UserDetails = {
+  cache: {},
+  search: function(user_name) {
+    if (!this.cache[user_name]) {
+      this.cache[user_name] = $.getJSON('www.mysite.com/?q=' + user_name);
+    }
+
+    return this.cache[username];
+  }
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 3: Caching</h2>
+<pre><code>
+UserDetails.search('bill_smith').done(function(results) {
+  //made a round trip to the server
+  console.log(results);
+})
+
+//After some usage:
+
+UserDetails.cache.bill_smith //Promise from $.getJSON
+UserDetails.cache.joe_taylor //Promise from $.getJSON
+
+</code></pre>
+        <p class='fragment'>How is that useful?</p>
+        </section>
+
+        <section>
+          <h2>Example 3: Caching</h2>
+<pre><code>
+UserDetails.search('bill_smith').done(function(results) {
+  // Did NOT make a round trip to the server this time
+  // Deferred passes the same params from the original callback
+  console.log(results);
+})
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 3: Caching</h2>
+          <p>This trick counts on the fact that you resolve a deferred <em>with parameters</em>, and that those get passed to any callback attached to the same promise</p>
+          <p class='fragment'>This lets you store both the state of a request (failed, resolved) as well as the data it returned in the same object.</p>
+        </section>
+
+        <section>
+          <h2>Example 4: Readable, maintainable javascript</h2>
+          <p>Task: Write literate, pretty javascript</p>
+          <p class='fragment'>Understandable code is maintainable code</p>
+<pre class='fragment'><code>
+setTimout(function() {
+  flashBanner();
+}, 500);
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 4: Readable, maintainable javascript</h2>
+<pre class='fragment'><code>
+$.wait = function(duration) {
+  // The deferred constructor can take an argument
+  return $.Deferred(function(def) {
+    setTimeout(def.resolve, duration);
+  });
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 4: Readable, maintainable javascript</h2>
+<pre class='fragment'><code>
+//Pretty! Readable!
+$.wait(500).then(flashBanner);
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 4: Readable, maintainable javascript</h2>
+          <p>Another example of readable, maintainable code:</p>
+<pre class='fragment'><code>
+$.when(
+  doSearch('twitter'), // These must return promises
+  doSearch('email'),
+  doSearch('weather')
+).done(function(twitter, email, weather) {
+
+  renderHomePage(twitter, email, weather);
+
+});
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 4: Readable, maintainable javascript</h2>
+          <p>Defereds have already done a good job having natural-language syntax, but you can extend that</p>
+          <p class='fragment'>Write methods that return promises!<p>
+        </section>
+
+        <section>
+          <h2>Example 5: Progress and notify</h2>
+          <p>You have a hotel booking site with long searches. Keep your user updated!</p>
+        </section>
+
+        <section>
+          <h2>Example 5: Progress and notify</h2>
+          <p>Your search takes 3 steps: Geocoding, hotel search, and pricing search.</p>
+<pre class='fragment'><code>
+geoCode('Moscow'); //returns locale_id
+hotelSearch(421124); //returns array of hotels
+priceSearch([23, 343, 6653, 23463]); //returns prices by hotel
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 5: Progress and notify</h2>
+          <p>How can you update a progress meter if it takes 20 seconds to search?</p>
+<pre class='fragment'><code>
+var searchDfd = $.Deferred();
+
+searchDfd.progress( updateProgressBar );
+searchDfd.done( showResultsPage );
+
+geoCode('Moscow', searchDfd);
+// When this completes, it calls the next search
+// as well as searchDfd.notify('geocodeComplete');
+
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Example 5: Progress and notify</h2>
+          <p>Each stage of the search calls .notify() as it completes, and the final search calls .resolve() to finish the search.</p>
+<pre class='fragment'><code>
+var searchDfd = $.Deferred();
+
+searchDfd.progress( updateProgressBar );
+searchDfd.done( showResultsPage );
+
+geoCode('Moscow', searchDfd);
+// When this completes, it calls the next search
+// as well as searchDfd.notify('geocodeComplete');
+
+</code></pre>
+        </section>
+
 
 			</div>
 
