@@ -544,19 +544,119 @@ geoCode('Moscow', searchDfd);
         <section>
           <h2>Example 5: Progress and notify</h2>
           <p>Each stage of the search calls .notify() as it completes, and the final search calls .resolve() to finish the search.</p>
-<pre class='fragment'><code>
-var searchDfd = $.Deferred();
 
-searchDfd.progress( updateProgressBar );
-searchDfd.done( showResultsPage );
-
-geoCode('Moscow', searchDfd);
-// When this completes, it calls the next search
-// as well as searchDfd.notify('geocodeComplete');
-
-</code></pre>
+          <a class='fragment' href="demo url">Demo!</a>
         </section>
 
+        <section>
+          <h2>Example 6: Managing Animations</h2>
+          <p>How can you orchestrate many simultaneous animations to make sure they run on time?</p>
+
+          <ul>
+            <li class='fragment'>.animate()</li>
+            <li class='fragment'>.fadeIn()</li>
+            <li class='fragment'>.fadeOut()</li>
+            <li class='fragment'>.hide()</li>
+            <li class='fragment'>.show()</li>
+            <li class='fragment'>.slideUp()</li>
+            <li class='fragment'>.slideDown()</li>
+          </ul>
+
+          <p class='fragment'>These all attach a promise to their DOM node</p>
+        </section>
+
+        <section>
+          <h2>Example 6: Managing Animations</h2>
+          <p>How can you orchestrate many simultaneous animations to make sure they run on time?</p>
+<pre class='fragment'><code>
+var myBanner = $('h1');
+
+myBanner.hide(2000);
+
+myBanner.promise().done(function() {
+  console.log("It's disappeared!");
+})
+</code></pre>
+
+        </section>
+
+        <section>
+          <h2>Example 6: Managing Animations</h2>
+          <p>How can you orchestrate many simultaneous animations to make sure they run on time?</p>
+<pre class='fragment'><code>
+var complexRemove = function() {
+  var defs = [];
+
+  defs.push( $('h1').delay(Math.random()*5000).fadeOut() );
+  defs.push( $('div').fadeIn(100).delay(200).slideDown() );
+
+  //makes an array of defferds one deferred
+  return $.when.apply(null, defs);
+}
+
+complexRemove().done(function() {
+  window.close();
+});
+</code></pre>
+
+        </section>
+
+        <section>
+          <h2>Example 6: Managing Animations</h2>
+          <p>Syncing multiple animations can be hard withuot deferreds.</p>
+          <p class='fragment'>Call node.promuse() to start working with them</p>
+        </section>
+
+        <section>
+          <h2>Other use cases</h2>
+
+          <ul>
+            <li class='fragment'>Registering multiple callbacks!</li>
+            <li class='fragment'>Post-resolution binding</li>
+            <li class='fragment'>Dependent $.ajax calls</li>
+            <li class='fragment'>Memoizing expensive operations</li>
+            <li class='fragment'>Implementing a publisher/subscriber pattern</li>
+          </ul>
+
+        </section>
+
+        <section>
+          <h2>Take home lessons for deferreds:</h2>
+
+          <ul>
+            <li class='fragment'>When in doubt, return a deferred</li>
+            <li class='fragment'>Better yet, return a promise</li>
+            <li class='fragment'>They are powerful when stored as a property on objects</li>
+            <li class='fragment'>They can make your code prettier</li>
+            <li class='fragment'>They can make your life easier!</li>
+          </ul>
+
+        </section>
+
+        <section>
+          <h2>What we covered:</h2>
+
+          <ul>
+            <li class='fragment'>Bundling ajax calls together</li>
+            <li class='fragment'>Normalizing by using .done on non-deferreds</li>
+            <li class='fragment'>Making a cache object</li>
+            <li class='fragment'>Prettier syntax and DSLs for maintainable code</li>
+            <li class='fragment'>Progress on a long running search using .notify</li>
+            <li class='fragment'>Managing complicated animations</li>
+          </ul>
+
+        </section>
+
+        <section>
+          <h2>Thank you so much!</h2>
+
+          <ul>
+            <li>@alexmcpherson</li>
+            <li>github.com/alexmcpherson</li>
+            <li>quickleft.com</li>
+          </ul>
+
+        </section>
 
 			</div>
 
